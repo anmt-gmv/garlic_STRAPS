@@ -29,7 +29,7 @@ endif
 all: Garlic_IBPL_ref.exe
 
 dependents:
-	-cd C:/Users/ANMT/eclipse-workspace/Garlic_IBPL_ref/Release && $(MAKE) clean all
+	-cd C:/Users/ANMT/eclipse-workspace/Garlic_IBPL_ref/Release && $(MAKE) all
 
 # Tool invocations
 Garlic_IBPL_ref.exe: $(OBJS) $(USER_OBJS) C:/Users/ANMT/eclipse-workspace/Garlic_IBPL_ref/Release/Garlic_IBPL_ref.exe

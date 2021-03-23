@@ -112,7 +112,7 @@ void initialize_garlic_data(gnssdata_t *gnssdata, gicsrx_t *gicsrxdata, lsq_stat
 	gicsrxdata->kconf.use_freq[FREQ_E5b]   = 0;
 
 	// Config the type of ionospheric model to be applied
-	gicsrxdata->kconf.iono_model = ION_KLOB;
+	gicsrxdata->kconf.iono_model = ION_NONE;
 //	gicsrxdata->kconf.iono_model = ION_FREE;
 
 	// Size of observation window.
