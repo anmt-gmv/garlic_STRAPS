@@ -50,6 +50,7 @@ static FILE *fp_output_all  = NULL;
 static FILE *fp_satview = NULL;
 
 FILE *fp_ref = NULL;
+//jkgjkgjk
 
 // Declaration of internal data structures
 //
