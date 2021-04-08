@@ -97,7 +97,7 @@ void initialize_garlic_data(gnssdata_t *gnssdata, gicsrx_t *gicsrxdata, lsq_stat
 
 	// Config the type of measurement to be used, Pilot/Data
 	gicsrxdata->kconf.use_pilot            = 1;
-	gicsrxdata->kconf.use_data             = 1;
+	gicsrxdata->kconf.use_data             = 0;
 
 	// Config constellations to be used in the PVT
 	gicsrxdata->kconf.use_sys[SYS_GPS]     = atoi(argv[3]);
@@ -112,7 +112,7 @@ void initialize_garlic_data(gnssdata_t *gnssdata, gicsrx_t *gicsrxdata, lsq_stat
 	gicsrxdata->kconf.use_freq[FREQ_E5b]   = 0;
 
 	// Config the type of ionospheric model to be applied
-	gicsrxdata->kconf.iono_model = ION_NONE;
+	gicsrxdata->kconf.iono_model = ION_KLOB;
 //	gicsrxdata->kconf.iono_model = ION_FREE;
 
 	// Size of observation window.

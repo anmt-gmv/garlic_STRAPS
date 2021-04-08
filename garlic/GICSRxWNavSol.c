@@ -527,7 +527,7 @@ static char GICSRxLeastSquares(float H[MAX_CHANNELS_G][NUM_PARS], float W[MAX_CH
 		float HTWH[NORMAL_MATRIX_SIZE], float HTW[NUM_PARS][MAX_CHANNELS_G], char DOPmat_io)
 {
 	// Declaration of variables.
-	int i, k;
+	int i, j, k;
 
 	char result = 0;
 
@@ -560,6 +560,13 @@ static char GICSRxLeastSquares(float H[MAX_CHANNELS_G][NUM_PARS], float W[MAX_CH
 		for(*eps = 0, i = 0; i < num_pars; i++)
 		{
 			*eps += dx[i]*dx[i];
+		}
+
+		// update residuals
+		for( i = 0; i < num_obs; i++ ){
+			for( j = 0; j < NUM_PARS; j++  ){
+				z[i] -= H[i][j] * dx[j];
+			}
 		}
 
 		// Result is valid, set flag to 1.

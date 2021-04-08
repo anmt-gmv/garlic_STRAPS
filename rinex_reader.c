@@ -102,9 +102,6 @@ static void open_io_files(int argc, char **argv)
 	sprintf(copyname, "Output\\%s\\lsq_state.txt", argv[2]);
 	fp_lsq = fopen(copyname,"wt");
 
-	sprintf(copyname, "Output\\%s\\sat_view.txt", argv[2]);
-	fp_satview = fopen(copyname,"wt");
-
 //	sprintf(copyname, "Output\\%s\\kal_state.txt", argv[2]);
 //	fp_kal = fopen(copyname,"wt");
 //
@@ -139,9 +136,14 @@ static void open_io_files(int argc, char **argv)
 //	sprintf(copyname, "Output\\%s\\residuals_ibpl.txt", argv[2]);
 //	fp_residuals = fopen(copyname,"wt");
 //
+#if ARAIM_ALG == 1
+	sprintf(copyname, "Output\\%s\\sat_view.txt", argv[2]);
+	fp_satview = fopen(copyname,"wt");
+
 	// save output_all
 	sprintf(copyname, "Output\\%s\\output_all.txt", argv[2]);
 	fp_output_all = fopen(copyname,"wt");
+#endif
 
 //	// save atmospheric correction
 //	sprintf(copyname, "Output\\%s\\atmosph_corr.txt", argv[2]);
@@ -461,6 +463,8 @@ int main(int argc, char **argv)
 	// keep track of the duration of the simulation
 	double test_duration = 0; clock_t begin = clock();
 
+	printf("Updated functions_lib.exe but with the same output format as previous SW versions\n");
+
 	// Check number of input parameters
 	if(argc < (9 + USE_IMU))  // *CHANGE* 4->9
 	{
@@ -514,6 +518,20 @@ int main(int argc, char **argv)
 			// Update GNL/garlic data structures to first available ephemeris
 			initialize_ephemeris(fp_ngps, fp_nglo, fp_ngal, fp_nbei, &gnssdata);
 		}
+
+		// if there are not E1C signals, then activate data signals
+		int e1c_found = 0;
+		for( int i = 0; i < 40; i++ ){
+			if( rinex_info.observation_list[1][i][0] == 'C' &&
+			    rinex_info.observation_list[1][i][1] == '1' &&
+				rinex_info.observation_list[1][i][2] == 'C'){
+				e1c_found = 1;
+			}
+		}
+		if(e1c_found == 0){
+			gicsrx.kconf.use_data             = 1;
+		}
+
 
 		// Ancillary data structure to store the last valid GNSS information read from
 		// observation RINEX file. This is useful when epochs in RINEX are missing and
@@ -569,7 +587,7 @@ int main(int argc, char **argv)
 			sat_new_in = check_new_sat_in( &gnssdata, nsat, &nsat_previous, sat_iw, sat_iw_previous, new_sat );
 
 			// Check if stored ephemeris are valid. If they are out-of-date, try to refresh
-			epoch_update_eph = fmod(round(gnssdata.tow), 60) == 0;
+//			epoch_update_eph = fmod(round(gnssdata.tow), 60) == 0;
 			if(gnssdata.SP3_ON == 0 && ( epoch_update_eph || sat_new_in > 0) )
 //			if(gnssdata.SP3_ON == 0)
 			{
@@ -616,7 +634,6 @@ int main(int argc, char **argv)
 					gnss_source->tow -= lsq_state.pos[6]/SPEED_OF_LIGHT;
 				}
 
-
 				/*-------------------------------------------------------------------------------------------------------------------------------------------------
 	RUN ARAIM USER ALGORITHM
 -------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -637,13 +654,12 @@ int main(int argc, char **argv)
 				int isat, iobs;
 				for( isat = 0; isat < Nsat; isat++ ){
 					fprintf( fp_output_all, "$SAT, %.5f, %d, %d, %.5f, %.5f, %.5f, ", nav_solution.tow, nav_solution.week, PRN_used[isat], G[isat][0], G[isat][1], G[isat][2]);
-
+					fprintf( fp_output_all , "%.5f, " , lsq_mat.zpos[isat] );
 					for( iobs = 0; iobs < gnss_source->noOfChannelsAv; iobs++ ){
 						if( gnss_source->OBS[iobs].PRN == PRN_used[isat] ){
-							fprintf( fp_output_all, "%.5f, %.5f\n", gnss_source->OBS[iobs].prange_residual, gnss_source->OBS[iobs].S1);
+							fprintf( fp_output_all, "%.5f\n", gnss_source->OBS[iobs].S1);
 						}
 					}
-
 				}
 
 				// --------------------------------- sav sat in view ---------------------------------------
